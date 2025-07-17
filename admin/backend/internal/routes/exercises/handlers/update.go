@@ -73,8 +73,8 @@ func UpdateExercise(c *fiber.Ctx) error {
 		exercise.Name = *exerciseUpdate.Name
 	}
 
-	if exerciseUpdate.URL != nil {
-		exercise.URL = *exerciseUpdate.URL
+	if exerciseUpdate.ImagePath != nil {
+		exercise.ImagePath = *exerciseUpdate.ImagePath
 	}
 
 	if exerciseUpdate.Description != nil {
@@ -83,10 +83,6 @@ func UpdateExercise(c *fiber.Ctx) error {
 
 	if exerciseUpdate.MuscleGroups != nil {
 		exercise.MuscleGroups = *exerciseUpdate.MuscleGroups
-	}
-
-	if exerciseUpdate.URL != nil {
-		exercise.URL = *exerciseUpdate.URL
 	}
 
 	if err := database.DB.Save(&exercise).Error; err != nil {

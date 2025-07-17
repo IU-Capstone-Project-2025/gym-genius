@@ -6,14 +6,15 @@ import (
 	"admin/internal/models"
 	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
+	"os"
 	"time"
+
 	"github.com/dgrijalva/jwt-go"
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
-	"encoding/json"
-	"os"
 	"gorm.io/gorm/clause"
 	"gorm.io/gorm/logger"
 )
@@ -21,13 +22,13 @@ import (
 var DB *gorm.DB
 
 var (
-	secret     = config.C.Secret
-	jwtSecret  = config.C.JwtSecret
-	dbHost     = config.C.DbHost
-	dbUser     = config.C.DbUser
-	dbPassword = config.C.DbPassword
-	dbName     = config.C.DbName
-	dbPort     = config.C.DbPort
+	secret        = config.C.Secret
+	jwtSecret     = config.C.JwtSecret
+	dbHost        = config.C.DbHost
+	dbUser        = config.C.DbUser
+	dbPassword    = config.C.DbPassword
+	dbName        = config.C.DbName
+	dbPort        = config.C.DbPort
 	adminPassword = config.C.AdminPassword
 )
 
@@ -124,16 +125,21 @@ func UpsertStaticData() error {
 	}
 
 	err = UpsertStaticWorkouts()
-	if err != nil {	
+	if err != nil {
 		return fmt.Errorf("failed to upsert static workouts: %w", err)
 	}
 
+	err = UpsertStaticUserActivities()
+	if err != nil {
+		return fmt.Errorf("failed to upsert static user activities: %w", err)
+	}
+	
 	return nil
 }
 
 func UpsertStaticAdmins() error {
 	var admin schemas.Admin
-	
+
 	admin.Login = "admin"
 	admin.Hash = Hash(admin.Login, adminPassword)
 
@@ -154,24 +160,34 @@ func UpsertStaticUsers() error {
 		return err
 	}
 
-	var rawUsers []models.UserCreate
+	var rawUsers []models.UserCreateFull
 	err = json.Unmarshal(data, &rawUsers)
 	if err != nil {
 		return err
 	}
-
 	var users []schemas.User
 	for _, u := range rawUsers {
-		users = append(users, schemas.User{
-			Name: u.Name,
-			Surname: u.Surname,
-			Login: u.Login,
-			Email: u.Email,
-			Hash:  Hash(u.Login, u.Password),
-		})
+		dbUser := schemas.User{
+			ID:                     u.ID,
+			Name:                   u.Name,
+			Surname:                u.Surname,
+			Login:                  u.Login,
+			Email:                  u.Email,
+			Hash:                   Hash(u.Login, u.Password),
+			SubscriptionPlan:       u.SubscriptionPlan,
+			SubscriptionStatus:     u.SubscriptionStatus,
+			Status:                 u.Status,
+			StreakCount:            u.StreakCount,
+			AverageWorkoutDuration: time.Duration(u.AverageWorkoutDurationNS),
+			NumberOfWorkouts:       u.NumberOfWorkouts,
+			TotalTimeSpent:         time.Duration(u.TotalTimeSpentNS),
+			LastActivity:           u.LastActivity,
+		}
+		users = append(users, dbUser)
 	}
-
-	err = DB.Clauses(clause.OnConflict{
+	
+	// skip hooks to avoid default user initizalization metadata
+	err = DB.Session(&gorm.Session{SkipHooks: true}).Clauses(clause.OnConflict{
 		Columns:   []clause.Column{{Name: "email"}},
 		UpdateAll: true,
 	}).Create(&users).Error
@@ -239,6 +255,34 @@ func UpsertStaticWorkouts() error {
 		}
 
 		if err := DB.Create(&workout).Error; err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func UpsertStaticUserActivities() error {
+	data, err := os.ReadFile("assets/user_activities.json")
+	if err != nil {
+		return err
+	}
+
+	var userActivityCreates []models.UserActivityCreateFull
+
+	err = json.Unmarshal(data, &userActivityCreates)
+	if err != nil {
+		return err
+	}
+
+	for _, userActivityCreate := range userActivityCreates {
+		userActivity := &schemas.UserActivity{
+			UserID:       userActivityCreate.UserID,
+			ID: userActivityCreate.ID,
+			Date: userActivityCreate.Date,
+		}
+
+		if err := DB.Create(userActivity).Error; err != nil {
 			return err
 		}
 	}

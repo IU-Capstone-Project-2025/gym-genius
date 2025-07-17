@@ -6,7 +6,7 @@
       { "exercise_id": 5, "reps": 8, "weight": 15 }
     ],
     "start_time": "2025-07-13T08:00:00Z",
-    "user_id": 1
+    "user_id": 2
   },
   {
     "duration_ns": 2400000000000,
@@ -24,7 +24,7 @@
       { "exercise_id": 9, "reps": 6, "weight": 20 }
     ],
     "start_time": "2025-07-13T12:45:00Z",
-    "user_id": 3
+    "user_id": 4
   },
   {
     "duration_ns": 3600000000000,
@@ -43,7 +43,7 @@
       { "exercise_id": 13, "reps": 12, "weight": 20 }
     ],
     "start_time": "2025-07-14T09:10:00Z",
-    "user_id": 5
+    "user_id": 10
   },
   {
     "duration_ns": 2700000000000,
@@ -52,7 +52,7 @@
       { "exercise_id": 1, "reps": 10, "weight": 30 }
     ],
     "start_time": "2025-07-14T11:30:00Z",
-    "user_id": 6
+    "user_id": 7
   },
   {
     "duration_ns": 3000000000000,
@@ -79,7 +79,7 @@
       { "exercise_id": 14, "reps": 10, "weight": 20 }
     ],
     "start_time": "2025-07-15T07:00:00Z",
-    "user_id": 9
+    "user_id": 4
   },
   {
     "duration_ns": 3300000000000,
@@ -98,7 +98,7 @@
       { "exercise_id": 26, "reps": 10, "weight": 30 }
     ],
     "start_time": "2025-07-15T11:40:00Z",
-    "user_id": 11
+    "user_id": 8
   },
   {
     "duration_ns": 2400000000000,
@@ -116,7 +116,7 @@
       { "exercise_id": 20, "reps": 6, "weight": 35 }
     ],
     "start_time": "2025-07-15T16:10:00Z",
-    "user_id": 13
+    "user_id": 10
   },
   {
     "duration_ns": 2220000000000,

@@ -72,7 +72,8 @@ func UserLoginHandler(c *fiber.Ctx) error {
 
 	c.Set("Authorization", "Bearer "+token)
 
-	return c.Status(fiber.StatusOK).JSON(models.MessageResponse{
+	return c.Status(fiber.StatusOK).JSON(models.TokenResponse{
+		Token:   "Bearer "+token,
 		Message: "logged in successfully",
 	})
 }

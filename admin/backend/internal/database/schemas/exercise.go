@@ -4,8 +4,8 @@ type Exercise struct {
 	ID           uint     `gorm:"primaryKey;autoincrement"           json:"id"`
 	Name         string   `gorm:"not null;uniqueIndex"               json:"name"`
 	Description  string   `gorm:"not null"                           json:"description"`
-	MuscleGroups []string `gorm:"type:text;serializer:json;not null" json:"muscleGroups"`
-	URL          string   `gorm:"not null"                           json:"imagePath"`
+	MuscleGroups []string `gorm:"type:text;serializer:json;not null" json:"muscle_groups"`
+	ImagePath          string   `gorm:"not null"                           json:"image_path"`
 }
 
 type ExerciseSet struct {

@@ -48,7 +48,7 @@ func GetExerciseByID(c *fiber.Ctx) error {
 		Name:         exercise.Name,
 		Description:  exercise.Description,
 		MuscleGroups: exercise.MuscleGroups,
-		URL:          exercise.URL,
+		URL:          exercise.ImagePath,
 	}
 
 	return c.Status(fiber.StatusOK).JSON(exerciseRead)
@@ -80,7 +80,7 @@ func GetExercisesPaginate(c *fiber.Ctx) error {
 			Name:         exercise.Name,
 			Description:  exercise.Description,
 			MuscleGroups: exercise.MuscleGroups,
-			URL:          exercise.URL,
+			URL:          exercise.ImagePath,
 		}
 	}
 

@@ -2,11 +2,9 @@ FROM golang:1.24 AS builder
 
 WORKDIR /app
 
-COPY go.mod go.sum ./
+COPY go.mod go.sum assets/exercises.json assets/users.json assets/workouts.json  ./
 
 RUN go mod download
-
-COPY . .
 
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o admin-backend ./app
 

@@ -12,6 +12,23 @@ type UserCreate struct {
 	Password string `json:"password" example:"123"`
 }
 
+type UserCreateFull struct {
+	ID                       uint      `json:"id" example:"1"`
+	Login                    string    `json:"login"   example:"john123"`
+	Name                     string    `json:"name"    example:"John"`
+	Surname                  string    `json:"surname" example:"Wick"`
+	Email                    string    `json:"email"   example:"john_doe@gmail.com"`
+	Password                 string    `json:"password"  example:"123"`
+	SubscriptionPlan         string    `json:"subscription_plan"   example:"free"`
+	SubscriptionStatus       string    `json:"subscription_status" example:"active"`
+	Status                   string    `json:"status"              example:"active"`
+	NumberOfWorkouts         uint      `json:"number_of_workouts"  example:"0"`
+	TotalTimeSpentNS         int64     `json:"total_time_spent_ns" example:"0"` // in nanoseconds
+	StreakCount              uint      `json:"streak_count"        example:"0"`
+	LastActivity             time.Time `json:"last_activity" example:"2024-06-04T19:00:00Z"`
+	AverageWorkoutDurationNS int64     `json:"average_workout_duration_ns" example:"0"` // in nanoseconds
+}
+
 type ExerciseSetCreate struct {
 	Reps       uint    `json:"reps"        example:"10"`
 	Weight     float64 `json:"weight"      example:"10"`
@@ -29,14 +46,14 @@ type ExerciseCreate struct {
 	Name         string   `json:"name"`
 	Description  string   `json:"description"   example:"Push-ups are a basic exercise that works the chest, shoulders, and triceps."`
 	MuscleGroups []string `json:"muscle_groups" example:"chest,back,triceps"`
-	URL          string   `json:"url"`
+	ImagePath    string   `json:"url"`
 }
 
 type ExerciseUpdate struct {
 	Name         *string   `json:"url"`
 	Description  *string   `json:"description"  example:"Push-ups are a basic exercise that works the chest, shoulders, and triceps."`
 	MuscleGroups *[]string `json:"muscle_group" example:"chest,back,triceps"`
-	URL          *string   `json:"image_path"   example:"https://example.com/image.jpg"` // URL to the exercise image
+	ImagePath    *string   `json:"image_path"   example:"https://example.com/image.jpg"` // URL to the exercise image
 }
 
 type UserUpdate struct {
@@ -49,9 +66,9 @@ type UserUpdate struct {
 	Status                   *string    `json:"status" example:"active"` // e.g., "active", "inactive", "banned"
 	LastActivity             *time.Time `json:"last_activity" example:"2023-10-01T12:00:00Z"`
 	NumberOfWorkouts         *uint      `json:"number_of_workouts" example:"0"`
-	TotalTimeSpentNS         *int64     `json:"total_time_spent_ns" example:"3600"` // in seconds
+	TotalTimeSpentNS         *int64     `json:"total_time_spent_ns" example:"3600"` // in nanoseconds
 	StreakCount              *uint      `json:"streak_count" example:"0"`
-	AverageWorkoutDurationNS *int64     `json:"average_workout_duration_ns" example:"3600"` // in seconds
+	AverageWorkoutDurationNS *int64     `json:"average_workout_duration_ns" example:"3600"` // in nanoseconds
 	Password                 *string    `json:"password"`
 }
 
@@ -70,4 +87,10 @@ type AuthInput struct {
 type UserActivityCreate struct {
 	UserID uint      `json:"user_id" example:"12345"`
 	Date   time.Time `json:"date"`
+}
+
+type UserActivityCreateFull struct {
+	ID     uint      `json:"id" example:"1"`
+	UserID uint      `json:"user_id" example:"15"`
+	Date   time.Time `json:"date" example:"2024-04-15T11:00:00Z"`
 }

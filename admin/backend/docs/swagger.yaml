@@ -523,6 +523,70 @@ paths:
       summary: Update an existing exercise by ID
       tags:
       - exercises
+  /exercises/photo:
+    get:
+      consumes:
+      - application/json
+      description: Get all exercise photos
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Exercise photos retrieved successfully
+          schema:
+            $ref: '#/definitions/models.MessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Exercise Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get all exercise photos
+      tags:
+      - exercises
+  /exercises/photo/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get an exercise photo by its ID
+      parameters:
+      - description: Exercise ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Exercise photo retrieved successfully
+          schema:
+            $ref: '#/definitions/models.MessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Exercise Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get an exercise photo by ID
+      tags:
+      - exercises
   /statistics/active-users:
     get:
       consumes:

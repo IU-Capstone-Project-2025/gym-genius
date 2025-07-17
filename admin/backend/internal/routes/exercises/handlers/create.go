@@ -55,7 +55,7 @@ func AddExercise(c *fiber.Ctx) error {
 		Name:         exerciseCreate.Name,
 		Description:  exerciseCreate.Description,
 		MuscleGroups: exerciseCreate.MuscleGroups,
-		URL:          exerciseCreate.URL,
+		ImagePath:          exerciseCreate.ImagePath,
 	}
 
 	if err := database.DB.Create(exercise).Error; err != nil {

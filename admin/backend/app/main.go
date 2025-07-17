@@ -33,11 +33,14 @@ func main() {
 
 	app := fiber.New()
 
+	app.Static("/exercise_images", "/assets/exercise_images")
+
 	// set up middleware
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: "*",
 		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
 		AllowMethods: "GET, POST, PATCH, DELETE",
+		ExposeHeaders: "Authorization",
 	}))
 	// sets X-Request-ID header with uuids
 	app.Use(requestid.New())
