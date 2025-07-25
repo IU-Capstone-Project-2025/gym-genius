@@ -184,7 +184,8 @@ class _PickingExercisePageState extends State<PickingExercisePage> {
           if (snapshot.hasError) {
             return SliverToBoxAdapter(
               child: Center(
-                child: SizedBox(height: 500, child: Text('Error: ${snapshot.error}')),
+                child: SizedBox(
+                    height: 500, child: Text('Error: ${snapshot.error}')),
               ),
             );
           }
@@ -258,10 +259,12 @@ class _PickingExercisePageState extends State<PickingExercisePage> {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
             color: Theme.of(context).colorScheme.primaryContainer,
-            image: exerciseInfo.imagePath != null &&
-                    exerciseInfo.imagePath != ""
-                ? DecorationImage(image: AssetImage(exerciseInfo.imagePath!))
-                : null,
+            image:
+                exerciseInfo.imagePath != null && exerciseInfo.imagePath != ""
+                    ? DecorationImage(
+                        image: AssetImage(exerciseInfo.imagePath!),
+                        fit: BoxFit.cover)
+                    : null,
           ),
           alignment: Alignment.bottomLeft,
 

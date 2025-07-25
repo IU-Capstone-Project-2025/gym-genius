@@ -26,4 +26,10 @@ class MockWorkoutRepositoryImpl implements WorkoutRepository {
     // TODO: implement saveWorkout
     throw UnimplementedError();
   }
+  
+  @override
+  Future<List<WorkoutEntity>> fetchRemoteWorkouts() {
+    // TODO: implement fetchRemoteWorkouts
+    throw UnimplementedError();
+  }
 }

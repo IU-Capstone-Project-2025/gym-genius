@@ -128,13 +128,15 @@ func GetUsersPaginate(c *fiber.Ctx) error {
 	}
 
 	errMessage := ""
-	if !schemas.UserStatusExists[params.UserStatus] {
+	switch {
+	case params.UserStatus != "" && !schemas.UserStatusExists[params.UserStatus]:
 		errMessage = "invalid user_status query param"
-	} else if !schemas.SubscriptionStatusExists[params.SubscriptionStatus] {
+	case params.SubscriptionStatus != "" && !schemas.SubscriptionStatusExists[params.SubscriptionStatus]:
 		errMessage = "invalid subscription_status query param"
-	} else if !schemas.SubscriptionPlanExists[params.SubscriptionPlan] {
+	case params.SubscriptionPlan != "" && !schemas.SubscriptionPlanExists[params.SubscriptionPlan]:
 		errMessage = "invalid subscription_plan query param"
 	}
+
 	if errMessage != "" {
 		return c.Status(fiber.StatusBadRequest).JSON(models.ErrorResponse{
 			Error: errMessage,

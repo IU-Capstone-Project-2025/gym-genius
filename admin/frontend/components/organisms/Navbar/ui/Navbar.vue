@@ -7,36 +7,77 @@
       </NuxtLink>
       <nav class="flex items-center gap-4">
         <NuxtLink
-          to="/"
-          class="nav-link"
-          :class="{ 'nav-link-active': $route.name === 'index' }"
+            to="/"
+            class="nav-link"
+            :class="{ 'nav-link-active': $route.name === 'index' }"
         >
           Dashboard
         </NuxtLink>
         <NuxtLink
-          to="/users"
-          class="nav-link"
-          :class="{ 'nav-link-active': $route.name === 'users' }"
+            to="/users"
+            class="nav-link"
+            :class="{ 'nav-link-active': $route.name === 'users' }"
         >
           Users
         </NuxtLink>
       </nav>
     </div>
-    
+
     <div class="flex-grow"></div>
-    
-    <NuxtLink to="/auth" v-if="authButtonVisible">
+
+    <!-- User menu when authenticated -->
+    <div v-if="useUserStore().isAuthorized && user" class="flex items-center gap-4">
+      <span class="text-sm text-gray-600 dark:text-gray-300">
+        {{ user.name }}
+      </span>
+      <UDropdown
+          :items="userMenuItems"
+          :popper="{ placement: 'bottom-end' }"
+      >
+        <UAvatar
+            :alt="user.name"
+            size="sm"
+            class="cursor-pointer"
+        />
+      </UDropdown>
+    </div>
+
+    <!-- Login button when not authenticated -->
+    <NuxtLink to="/auth" v-else-if="authButtonVisible">
       <UButton>Login</UButton>
     </NuxtLink>
+
+    <UButton v-else-if="!authButtonVisible" @click="fuckingLogout">Logout</UButton>
   </div>
 </template>
 
 <script setup lang="ts">
 
-const authButtonVisible = computed(() => {
-  return useRoute().name !== 'auth';
-})
 
+// const { user, isAuthenticated, logout } = useAuth()
+
+const fuckingLogout = () => {
+  useUserStore().logout();
+}
+
+const authButtonVisible = computed(() => {
+  return useRoute().name !== 'auth' && !useUserStore().isAuthorized
+})
+//
+// const userMenuItems = [
+//   [{
+//     label: 'Profile',
+//     icon: 'i-heroicons-user-circle',
+//     disabled: true // TODO: Implement profile page
+//   }],
+//   [{
+//     label: 'Logout',
+//     icon: 'i-heroicons-arrow-left-on-rectangle',
+//     click: async () => {
+//       await logout()
+//     }
+//   }]
+// ]
 </script>
 
 <style scoped>

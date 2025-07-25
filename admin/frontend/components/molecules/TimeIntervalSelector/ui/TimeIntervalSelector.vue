@@ -14,7 +14,7 @@
 
 import {TimeIntervalButton} from "~/components/atoms/TimeIntervalButton";
 
-export type TimeInterval = '24h' | '7d' | '30d' | '90d'
+export type TimeInterval = '1h' | '1d' | '7d' | '30d'
 
 interface TimeIntervalOption {
   label: string
@@ -31,9 +31,9 @@ defineEmits<{
 }>()
 
 const intervals: TimeIntervalOption[] = [
-  {label: '24 Hours', value: '24h'},
+  {label: '1 Hour', value: '1h'},
+  {label: '1 Day', value: '1d'},
   {label: '7 Days', value: '7d'},
-  {label: '30 Days', value: '30d'},
-  {label: '90 Days', value: '90d'}
+  {label: '30 Days', value: '30d'}
 ]
 </script>

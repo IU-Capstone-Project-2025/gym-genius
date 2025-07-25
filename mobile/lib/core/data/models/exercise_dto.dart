@@ -64,6 +64,28 @@ class ExerciseDTO {
     };
   }
 
+  Map<String, dynamic> toAnotherFuckingShit() {
+    return <String, dynamic>{
+      'exercise_id': exerciseInfo.id,
+      'reps'
+          'sets': sets.map((x) => x.toMap()).toList(),
+    };
+  }
+
+  List<Map<String, num>> toShitList() {
+    final List<Map<String, num>> list = [];
+
+    for (final set in sets) {
+      list.add({
+        'exercise_id': exerciseInfo.id,
+        'reps': set.reps,
+        'weight': set.weight,
+      });
+    }
+
+    return list;
+  }
+
   Map<String, dynamic> toFuckingShit() {
     return <String, dynamic>{
       'exerciseInfo': exerciseInfo.description,

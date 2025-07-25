@@ -47,19 +47,20 @@ services:
     depends_on:
       - backend
 
-  mobile:
-    build:
-      context: ./mobile
-      dockerfile: Dockerfile
-    ports:
-      - "8088:80"
-    env_file:
-      - ./.env
+#  mobile:
+#    build:
+  #      context: ./mobile
+  #      dockerfile: Dockerfile
+  #    ports:
+  #      - "8088:80"
+  #    env_file:
+  #      - ./.env
 
   nginx:
     image: nginx:alpine
     ports:
       - "80:80"
+      - "443:443"
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
     depends_on:

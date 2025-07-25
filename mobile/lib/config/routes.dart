@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:gym_genius/core/presentation/pages/auth_page/auth_page.dart';
 
 import '/core/presentation/pages/stats_page/stats_page.dart';
 import '/core/presentation/pages/training_page/start_workout_page.dart';
@@ -7,6 +8,7 @@ import '/core/presentation/pages/training_page/training_process_page.dart';
 final routes = {
   '/': (context) => const TabBarPage(),
   '/training_process': (context) => const TrainingProcessPage(),
+  '/auth': (context) => const AuthPage(),
 };
 
 class TabBarPage extends StatelessWidget {

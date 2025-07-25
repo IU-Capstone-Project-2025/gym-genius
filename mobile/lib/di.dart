@@ -1,6 +1,8 @@
 import 'package:get_it/get_it.dart';
 import 'package:gym_genius/core/data/datasources/local/services/workout_database_provider.dart';
-import 'package:gym_genius/core/data/repositories/mock_workout_repository_impl.dart';
+import 'package:gym_genius/core/data/repositories/user_repository_impl.dart';
+import 'package:gym_genius/core/network/data/user_credentials.dart';
+import 'package:gym_genius/core/network/dio_service.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '/core/domain/repositories/ex_infos_repository.dart';
@@ -21,30 +23,39 @@ enum LaunchingType {
 }
 
 void setUpLocator(LaunchingType type) async {
-  // Register services
+  // Database related.
   getIt.registerSingleton<ExerciseInfosLoader>(
     JsonExerciseInfosLoader(),
   );
+  getIt.registerLazySingleton<DatabaseFactory>(() => databaseFactory);
+  getIt.registerLazySingleton<WorkoutDatabaseProvider>(
+      () => WorkoutDatabaseProvider(getIt(), getIt()));
 
   // Register Datasources
   // For local - dbProvider
   // For remote - apiProvider
   getIt.registerLazySingleton<LocalWorkoutDatasource>(
-    () => SqfliteDatabase(WorkoutDatabaseProvider(JsonExerciseInfosLoader(), databaseFactory)),
+    () => SqfliteDatabase(getIt<WorkoutDatabaseProvider>()),
   );
+
+  getIt.registerLazySingleton(() => DioService());
   getIt.registerLazySingleton<RemoteWorkoutDatasource>(
-    () => APIWorkoutDatasource(),
+    () => APIWorkoutDatasource(getIt<DioService>()),
   );
+  getIt.registerLazySingleton(() => UserCredentials());
+  getIt.registerLazySingleton(
+      () => UserRepositoryImpl(getIt<UserCredentials>(), getIt<DioService>()));
 
   // Register Repositories
   getIt.registerLazySingleton<WorkoutRepository>(
     () {
-      switch (type) {
-        case LaunchingType.development:
-          return MockWorkoutRepositoryImpl();
-        case LaunchingType.production:
-          return WorkoutRepositoryImpl();
-      }
+      // switch (type) {
+      // case LaunchingType.development:
+      //   return MockWorkoutRepositoryImpl();
+      // case LaunchingType.production:
+      return WorkoutRepositoryImpl(
+          getIt<LocalWorkoutDatasource>(), getIt<RemoteWorkoutDatasource>());
+      // }
     },
   );
   getIt.registerLazySingleton<ExInfosRepository>(

@@ -8,7 +8,7 @@ abstract class ExerciseInfosLoader {
 }
 
 class JsonExerciseInfosLoader implements ExerciseInfosLoader {
-  static const String _jsonLoadingPath = "lib/assets/exercises.json";
+  static const String _jsonLoadingPath = "assets/exercises.json";
   List<ExerciseInfoDTO>? exercisesInfo;
 
   @override

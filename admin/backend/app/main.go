@@ -37,11 +37,11 @@ func main() {
 
 	// set up middleware
 	app.Use(cors.New(cors.Config{
-		AllowOrigins:  "http://localhost:3000, https://admin.говно.site, https://api.говно.site, https://www.говно.site, https://www.gymgenius.app, https://gymgenius.app",
+		AllowOrigins:     "http://localhost:3000, https://admin.xn--b1ab5acc.site, https://api.xn--b1ab5acc.site, https://www.xn--b1ab5acc.site",
 		AllowCredentials: true,
-		AllowHeaders:  "Origin, Content-Type, Accept, Authorization",
-		AllowMethods:  "GET, POST, PATCH, DELETE",
-		ExposeHeaders: "Authorization",
+		AllowHeaders:     "Origin, Content-Type, Accept, Authorization",
+		AllowMethods:     "GET, POST, PATCH, DELETE",
+		ExposeHeaders:    "Authorization",
 	}))
 	// sets X-Request-ID header with uuids
 	app.Use(requestid.New())

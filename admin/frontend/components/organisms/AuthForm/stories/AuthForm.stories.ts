@@ -7,22 +7,17 @@ const meta = {
     component: AuthForm,
     tags: ['autodocs'],
     argTypes: {
-        type: {
-            control: 'select',
-            options: ['sign_in', 'sign_up'],
-            description: 'Authentication form mode'
+        isLoading: {
+            control: 'boolean',
+            description: 'Loading state of the form'
         },
-        switch: {
-            action: 'switch',
-            description: 'Event emitted when switching between sign-in and sign-up modes'
-        },
-        action: {
-            action: 'action',
+        submit: {
+            action: 'submit',
             description: 'Event emitted when submitting the form with login and password'
         }
     },
     parameters: {
-        componentSubtitle: 'Authentication form for user login and registration',
+        componentSubtitle: 'Authentication form for admin login',
         layout: 'fullscreen'
     }
 } satisfies Meta<typeof AuthForm>;
@@ -30,15 +25,15 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const LoginMode: Story = {
+export const Default: Story = {
     args: {
-        type: 'sign_in'
+        isLoading: false
     }
 };
 
-export const SignupMode: Story = {
+export const Loading: Story = {
     args: {
-        type: 'sign_up'
+        isLoading: true
     }
 };
 
@@ -47,38 +42,45 @@ export const Interactive: Story = {
     parameters: {
         docs: {
             description: {
-                story: 'Interactive example showing how the form switches between login and signup modes'
+                story: 'Interactive example showing form validation and submission'
             }
         }
     },
     render: (args) => ({
         components: {AuthForm},
         setup() {
-            const formType = ref(args.type || 'sign_in');
+            const isLoading = ref(args.isLoading || false);
+            const authFormRef = ref(null);
 
-            function handleSwitch(type) {
-                formType.value = type;
-                args.switch(type);
+            async function handleSubmit(login, password) {
+                isLoading.value = true;
+                args.submit(login, password);
+                
+                // Simulate API call
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                // Simulate error for demo
+                if (login === 'error') {
+                    authFormRef.value?.setError('Invalid credentials');
+                }
+                
+                isLoading.value = false;
             }
 
-            function handleAction(login, password) {
-                args.action(login, password);
-            }
-
-            return {formType, handleSwitch, handleAction};
+            return {isLoading, authFormRef, handleSubmit};
         },
         template: `
-          <div class="h-screen bg-gray-100 p-4">
+          <div class="h-screen bg-gray-100 p-4 flex items-center justify-center">
             <AuthForm
-                :type="formType"
-                @switch="handleSwitch"
-                @action="handleAction"
+                ref="authFormRef"
+                :is-loading="isLoading"
+                @submit="handleSubmit"
             />
             <div class="fixed bottom-4 left-4 p-4 bg-white rounded shadow">
               <p class="text-sm font-semibold mb-2">Debug Info:</p>
-              <p class="text-xs">Current Mode: {{ formType }}</p>
-              <p class="text-xs mt-2">Try clicking the Log in/Sign up buttons to switch modes</p>
-              <p class="text-xs mt-2">Fill out both fields and click the active button to trigger the action event</p>
+              <p class="text-xs">Loading: {{ isLoading }}</p>
+              <p class="text-xs mt-2">Try logging in with any credentials</p>
+              <p class="text-xs">Use login "error" to simulate an error</p>
             </div>
           </div>
         `
@@ -88,79 +90,109 @@ export const Interactive: Story = {
 // Story that demonstrates form validation behavior
 export const FormValidation: Story = {
     args: {
-        type: 'sign_in'
+        isLoading: false
     },
     parameters: {
         docs: {
             description: {
-                story: 'Demonstrates that the action event is only triggered when both fields are filled'
+                story: 'Demonstrates form validation with different scenarios'
             }
         }
     },
     render: (args) => ({
         components: {AuthForm},
         setup() {
-            const actionCalled = ref(false);
-            const actionDetails = ref(null);
+            const submittedData = ref(null);
+            const authFormRef = ref(null);
 
-            function handleAction(login, password) {
-                actionCalled.value = true;
-                actionDetails.value = {login, password};
-                args.action(login, password);
+            function handleSubmit(login, password) {
+                submittedData.value = {login, password, timestamp: new Date().toLocaleTimeString()};
+                args.submit(login, password);
 
-                // Reset after 2 seconds
+                // Reset after 3 seconds
                 setTimeout(() => {
-                    actionCalled.value = false;
-                    actionDetails.value = null;
-                }, 2000);
+                    submittedData.value = null;
+                }, 3000);
             }
 
-            return {args, actionCalled, actionDetails, handleAction};
+            return {args, submittedData, authFormRef, handleSubmit};
         },
         template: `
-          <div class="h-screen bg-gray-100 p-4">
+          <div class="h-screen bg-gray-100 p-4 flex items-center justify-center">
             <AuthForm
-                :type="args.type"
-                @switch="args.switch"
-                @action="handleAction"
+                ref="authFormRef"
+                :is-loading="args.isLoading"
+                @submit="handleSubmit"
             />
             <div class="fixed bottom-4 left-4 p-4 bg-white rounded shadow">
               <p class="text-sm font-semibold mb-2">Form Submission:</p>
-              <div v-if="actionCalled" class="text-xs p-2 bg-green-100 rounded">
+              <div v-if="submittedData" class="text-xs p-2 bg-green-100 rounded">
                 <p class="font-semibold text-green-700">Form Submitted Successfully!</p>
-                <p class="mt-1">Login: {{ actionDetails.login }}</p>
-                <p>Password: {{ actionDetails.password }}</p>
+                <p class="mt-1">Login: {{ submittedData.login }}</p>
+                <p>Password: {{ '•'.repeat(submittedData.password.length) }}</p>
+                <p>Time: {{ submittedData.timestamp }}</p>
               </div>
-              <p v-else class="text-xs">Fill both fields and click the main button to submit</p>
+              <p v-else class="text-xs">
+                Form will validate on blur and submit.<br>
+                Min 3 chars for login, 6 for password.
+              </p>
             </div>
           </div>
         `
     })
 };
 
-// Добавьте эту историю в существующий файл
+// Dark mode story
 export const DarkMode: Story = {
     render: () => ({
         components: { AuthForm },
         setup() {
-            const formType = ref('sign_in');
+            const isLoading = ref(false);
 
-            function handleSwitch(type) {
-                formType.value = type;
+            function handleSubmit(login, password) {
+                console.log('Login submitted:', login, password);
             }
 
-            function handleAction(login, password) {
-                console.log('Action triggered:', login, password);
-            }
-
-            return { formType, handleSwitch, handleAction };
+            return { isLoading, handleSubmit };
         },
         template: `
-            <div style="min-height: 100vh; background-color: #1a1a1a; padding: 2rem;" class="dark">
+            <div style="min-height: 100vh; background-color: #1a1a1a; padding: 2rem;" class="dark flex items-center justify-center">
                 <AuthForm 
-                    :type="formType"
-                    @switch="handleSwitch"
-                    @action="handleAction"
+                    :is-loading="isLoading"
+                    @submit="handleSubmit"
+                />
+            </div>
+        `
+    })
+};
+
+// Error state story
+export const WithError: Story = {
+    render: () => ({
+        components: { AuthForm },
+        setup() {
+            const authFormRef = ref(null);
+            const isLoading = ref(false);
+
+            onMounted(() => {
+                // Show error after component mounts
+                setTimeout(() => {
+                    authFormRef.value?.setError('Invalid credentials. Please try again.');
+                }, 500);
+            });
+
+            function handleSubmit(login, password) {
+                console.log('Login submitted:', login, password);
+            }
+
+            return { authFormRef, isLoading, handleSubmit };
+        },
+        template: `
+            <div class="h-screen bg-gray-100 p-4 flex items-center justify-center">
+                <AuthForm 
+                    ref="authFormRef"
+                    :is-loading="isLoading"
+                    @submit="handleSubmit"
                 />
             </div>
         `

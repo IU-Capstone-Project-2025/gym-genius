@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:gym_genius/core/presentation/pages/training_page/widgets/popups.dart';
+import 'package:gym_genius/core/presentation/shared/warnings.dart';
 import 'package:gym_genius/di.dart' show getIt;
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -38,27 +40,50 @@ class _TrainingProcessPageState extends State<TrainingProcessPage> {
 
     return BlocProvider(
       create: (context) => getIt<TrainingBloc>(),
-      child: BlocBuilder<TrainingBloc, TrainingState>(
-        builder: (context, state) {
-          final bloc = context.read<TrainingBloc>();
-
-          return Scaffold(
-            body: Stack(
-              children: [
-                _buildSlivers(
-                  StopwatchWidget(controller: _timerCtrl),
-                  bloc.state.exercises.isNotEmpty,
-                  heightOfPinnedContainer,
-                  bloc,
-                ),
-                _buildPinnedContainer(
-                  heightOfPinnedContainer,
-                  bloc,
-                )
-              ],
-            ),
-          );
+      child: BlocListener<TrainingBloc, TrainingState>(
+        listenWhen: (previous, current) =>
+            previous.exercises != current.exercises ||
+            previous.submitTrainingStatus != current.submitTrainingStatus,
+        listener: (context, state) {
+          switch (state.submitTrainingStatus) {
+            case SubmitTrainingStatus.failureEmptySets:
+              Warnings.showSubmitIncompleteWarning(context);
+              break;
+            case SubmitTrainingStatus.failureWritingDB:
+              Warnings.showWritingFailureWarning(context);
+              break;
+            case SubmitTrainingStatus.success:
+              Popups.showSubmittedTraining(
+                  context,
+                  context.read<TrainingBloc>(),
+                  context.read<TrainingBloc>().state.workout!);
+              break;
+            default:
+              break;
+          }
         },
+        child: BlocBuilder<TrainingBloc, TrainingState>(
+          builder: (context, state) {
+            final bloc = context.read<TrainingBloc>();
+
+            return Scaffold(
+              body: Stack(
+                children: [
+                  _buildSlivers(
+                    StopwatchWidget(controller: _timerCtrl),
+                    bloc.state.exercises.isNotEmpty,
+                    heightOfPinnedContainer,
+                    bloc,
+                  ),
+                  _buildPinnedContainer(
+                    heightOfPinnedContainer,
+                    bloc,
+                  )
+                ],
+              ),
+            );
+          },
+        ),
       ),
     );
   }
@@ -98,45 +123,47 @@ class _TrainingProcessPageState extends State<TrainingProcessPage> {
         backgroundColor: Theme.of(context).colorScheme.surface,
         stretch: true,
         middle: stopwatch,
-        trailing: BlocBuilder<TrainingBloc, TrainingState>(
-          builder: (context, state) {
-            const submitWidth = 80.0; // ≈ width of the “Submit” button
-            const submitHeight = 44.0; // default cupertino button height
+        trailing: BlocProvider.value(
+          value: bloc,
+          child: BlocBuilder<TrainingBloc, TrainingState>(
+            builder: (context, state) {
+              const submitWidth = 80.0; // ≈ width of the “Submit” button
+              const submitHeight = 44.0; // default cupertino button height
 
-            return Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // CupertinoButton(
-                //   padding: EdgeInsets.zero,
-                //   onPressed: () {},
-                //   child: const Text('Random'),
-                // ),
-                // const SizedBox(width: 16),
+              return Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // CupertinoButton(
+                  //   padding: EdgeInsets.zero,
+                  //   onPressed: () {},
+                  //   child: const Text('Random'),
+                  // ),
+                  // const SizedBox(width: 16),
 
-                SizedBox(
-                  width: submitWidth,
-                  height: submitHeight,
-                  child: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 200),
-                    switchInCurve: Curves.easeIn,
-                    switchOutCurve: Curves.easeOut,
-                    child: CupertinoButton(
-                      // “Submit”
-                      key: const ValueKey(
-                        'submitBtn',
-                      ), // give each child a key!
-                      padding: EdgeInsets.zero,
-                      onPressed: () => Navigator.pop(context),
-                      // onPressed: hasExercises
-                      //     ? () => bloc.add(SubmitTraining(_timerCtrl.elapsed))
-                      //     : null,
-                      child: const Text('Submit'),
+                  SizedBox(
+                    width: submitWidth,
+                    height: submitHeight,
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 200),
+                      switchInCurve: Curves.easeIn,
+                      switchOutCurve: Curves.easeOut,
+                      child: CupertinoButton(
+                        // “Submit”
+                        key: const ValueKey(
+                          'submitBtn',
+                        ), // give each child a key!
+                        padding: EdgeInsets.zero,
+                        onPressed: hasExercises
+                            ? () => bloc.add(SubmitTraining(_timerCtrl.elapsed))
+                            : null,
+                        child: const Text('Submit'),
+                      ),
                     ),
                   ),
-                ),
-              ],
-            );
-          },
+                ],
+              );
+            },
+          ),
         ),
       );
 

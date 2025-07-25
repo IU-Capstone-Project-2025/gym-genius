@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gym_genius/core/domain/entities/workout_entity.dart';
 
 import '/core/domain/entities/exercise_entity.dart';
 import '../../domain/repositories/workout_repository.dart';
@@ -11,6 +12,21 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
     on<AddExercise>(_onAddExercise);
     on<RemoveExercise>(_onRemoveExercise);
     on<SubmitTraining>(_onSubmitTraining);
+    on<GetAIReview>(_onGetAIReview);
+  }
+
+  void _onGetAIReview(GetAIReview event, Emitter<TrainingState> emit) async {
+    emit(state.copyWith(getAIReviewStatus: GetAIReviewStatus.initial));
+    try {
+      emit(state.copyWith(getAIReviewStatus: GetAIReviewStatus.loading));
+      final description = await workoutRepository.getAIReview(event.workout);
+      emit(state.copyWith(
+        getAIReviewStatus: GetAIReviewStatus.success,
+        review: description,
+      ));
+    } catch (e) {
+      emit(state.copyWith(getAIReviewStatus: GetAIReviewStatus.failure));
+    }
   }
 
   void _onAddExercise(AddExercise event, Emitter<TrainingState> emit) {
@@ -41,5 +57,36 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
   }
 
   void _onSubmitTraining(
-      SubmitTraining event, Emitter<TrainingState> emit) async {}
+      SubmitTraining event, Emitter<TrainingState> emit) async {
+    emit(state.copyWith(submitStatus: SubmitTrainingStatus.initial));
+
+    // First we check if some sets are empty
+    final existsEmpty = state.exercises.any(
+      (exercise) => exercise.sets.isEmpty,
+    );
+    if (existsEmpty) {
+      emit(state.copyWith(submitStatus: SubmitTrainingStatus.failureEmptySets));
+      return;
+    }
+
+    final workout = WorkoutEntity(
+      id: -1, // Do not need an ID really
+      duration: event.workoutDuration,
+      startTime: DateTime.now().subtract(event.workoutDuration),
+      exercises: state.exercises,
+    );
+
+    emit(state.copyWith(submitStatus: SubmitTrainingStatus.loading));
+    try {
+      workoutRepository.saveWorkout(workout);
+    } catch (e) {
+      emit(state.copyWith(submitStatus: SubmitTrainingStatus.failureWritingDB));
+    }
+
+    // FINAL STATE
+    emit(state.copyWith(
+      submitStatus: SubmitTrainingStatus.success,
+      workout: workout,
+    ));
+  }
 }

@@ -1,19 +1,47 @@
 <template>
-  <AuthForm
-      :type="type"
-      @switch="value => type = value"
-      @action="(login, password) => action(login, password)"
-  />
+  <div class="h-full flex items-center justify-center">
+    <AuthForm
+        ref="authFormRef"
+
+    />
+  </div>
 </template>
 <script setup lang="ts">
-
 import {AuthForm} from '~/components/organisms/AuthForm'
 
-const type: Ref<"sign_in" | "sign_up"> = ref("sign_in");
+// Disable auth middleware for this page and use auth layout
+definePageMeta({
+  middleware: [],
+  layout: 'auth'
+})
 
-
-const action = (login: string, password: string) => {
-  console.warn('ACTION:', type.value, login, password);
-}
-
+// const { login: authLogin, isLoading } = useAuth()
+// const toast = useToast()
+// const authFormRef = ref<InstanceType<typeof AuthForm>>()
+//
+// const handleLogin = async (login: string, password: string) => {
+//   console.log('handleLogin called with:', { login, password })
+//   try {
+//     await authLogin({ login, password })
+//     toast.add({
+//       title: 'Success',
+//       description: 'Logged in successfully',
+//       color: 'green'
+//     })
+//   } catch (error: any) {
+//     console.error('Login failed:', error)
+//
+//     // Show error in the form
+//     if (authFormRef.value) {
+//       authFormRef.value.setError(error.message || 'Login failed. Please check your credentials.')
+//     }
+//
+//     // Also show toast for error
+//     toast.add({
+//       title: 'Login Failed',
+//       description: error.message || 'Please check your credentials and try again',
+//       color: 'red'
+//     })
+//   }
+// }
 </script>

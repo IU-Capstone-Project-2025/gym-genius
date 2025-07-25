@@ -15,7 +15,7 @@ class WorkoutDTO {
   List<ExerciseDTO> exercises;
   String? description;
   double? weight;
-  
+
   WorkoutDTO({
     required this.id,
     required this.duration,
@@ -66,13 +66,14 @@ class WorkoutDTO {
       // Starttime - around the current year
       startTime: DateTime.now().subtract(Duration(days: rand.nextInt(365))),
       description: "Random workout ${rand.nextInt(1 << 10)}",
-      exercises: List.generate(rand.nextInt(5) + 1, (val) => ExerciseDTO.fake()),
+      exercises:
+          List.generate(rand.nextInt(5) + 1, (val) => ExerciseDTO.fake()),
     );
   }
 
   static List<WorkoutDTO> fakeMany(int amount) {
     return List.generate(amount, (_) => WorkoutDTO.fake());
-  } 
+  }
 
   factory WorkoutDTO.fromEntity(WorkoutEntity entity) {
     return WorkoutDTO(
@@ -98,6 +99,20 @@ class WorkoutDTO {
     };
   }
 
+  Map<String, dynamic> toFuckingShit(int id) {
+    final List<Map<String, num>> fuckingExercises = [];
+    for (final ex in exercises) {
+      fuckingExercises.addAll(ex.toShitList());
+    }
+
+    return {
+      'duration_ns': duration.inMilliseconds,
+      'start_time': startTime.toUtc().toIso8601String(),
+      'user_id': id,
+      'exercise_sets': fuckingExercises
+    };
+  }
+
   Map<String, dynamic> toCamelMap() {
     return <String, dynamic>{
       'id': id,
@@ -106,7 +121,32 @@ class WorkoutDTO {
       'exercises': exercises.map((x) => x.toFuckingShit()).toList(),
       'description': description,
       'weight': weight,
-    }; 
+    };
+  }
+
+//   [
+//   {
+//     "id": 153,
+//     "duration_ns": 60,
+//     "timestamp": "2023-10-01T12:00:00Z",
+//     "user_id": 0,
+//     "exercise_sets": [
+//       {
+//         "weight": 10,
+//         "reps": 10,
+//         "exercise_id": 10
+//       }
+//     ]
+//   }
+// ]
+
+  factory WorkoutDTO.fromBackendMap(Map<String, dynamic> map) {
+    return WorkoutDTO(
+      id: map['id'] as int,
+      duration: Duration(seconds: ((map['duration_ns'] as int) / 1000).round()),
+      startTime: DateTime.parse(map['timestamp'] as String),
+      exercises: [],
+    );
   }
 
   factory WorkoutDTO.fromMap(Map<String, dynamic> map) {
@@ -127,6 +167,9 @@ class WorkoutDTO {
 
   factory WorkoutDTO.fromJson(String source) =>
       WorkoutDTO.fromMap(json.decode(source) as Map<String, dynamic>);
+
+  factory WorkoutDTO.fromBackendJson(String source) =>
+      WorkoutDTO.fromBackendMap(json.decode(source) as Map<String, dynamic>);
 
   @override
   String toString() {

@@ -46,6 +46,8 @@ import {TimeIntervalSelector} from "~/components/molecules/TimeIntervalSelector"
 
 const {selectedInterval, activityData, isLoading, fetchActivityData} = useUserActivity()
 
+
+
 const totalUsers = computed(() =>
     activityData.value.values.reduce((sum, val) => sum + val, 0)
 )

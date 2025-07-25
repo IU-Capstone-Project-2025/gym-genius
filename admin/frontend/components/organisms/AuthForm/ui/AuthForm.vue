@@ -1,88 +1,150 @@
 <template>
-  <div class="auth__page-container">
-    <UCard class="auth__login-form">
-      <template #header>
-        {{ header }}
-      </template>
+  <UCard class="auth__login-form">
+    <template #header>
+      Log In
+    </template>
 
-      <div class="flex flex-col gap-y-4">
+    <div class="flex flex-col gap-y-4">
+      <UFormGroup
+          label="Login"
+          :error="errors.login"
+          class="space-y-1"
+      >
         <UInput
-            placeholder="Login"
+            class="w-full"
+            placeholder="Enter your login"
             size="xl"
             autocomplete="off"
             v-model="login"
+            :disabled="isLoading"
         />
+      </UFormGroup>
+
+      <UFormGroup
+          label="Password"
+          :error="errors.password"
+          class="space-y-1"
+      >
         <UInput
-            placeholder="Password"
+            class="w-full"
+            placeholder="Enter your password"
             size="xl"
             type="password"
             autocomplete="new-password"
             v-model="password"
+            :disabled="isLoading"
+            @keyup.enter="handleLogin"
         />
+      </UFormGroup>
+
+      <UAlert
+          v-if="generalError"
+          color="red"
+          variant="solid"
+          :title="generalError"
+          class="mb-4"
+      />
+    </div>
+
+    <template #footer>
+      <div class="flex justify-end">
+        <UButton
+            size="xl"
+            color="primary"
+            :loading="isLoading"
+            :disabled="isLoading"
+            @click="handleLogin"
+        >
+          {{ isLoading ? 'Logging in...' : 'Log in' }}
+        </UButton>
       </div>
-
-      <template #footer>
-        <div class="grid grid-cols-1 justify-items-end">
-          <div class="flex gap-x-2">
-            <UButton
-                :variant="type === 'sign_in' ? 'outline' : 'solid'"
-                :color="type === 'sign_in' ? 'neutral' : 'primary'"
-                size="xl"
-                @click="type === 'sign_up' ? actionButtonClick() : emit('switch', 'sign_up')"
-            >
-              Sign up
-            </UButton>
-
-            <UButton
-                size="xl"
-                :variant="type === 'sign_in' ? 'solid' : 'outline'"
-                :color="type === 'sign_in' ? 'primary' : 'neutral'"
-                @click="type === 'sign_in' ? actionButtonClick() : emit('switch', 'sign_in')"
-            >
-              Log in
-            </UButton>
-          </div>
-        </div>
-      </template>
-    </UCard>
-  </div>
+    </template>
+  </UCard>
 </template>
 
 <script setup lang="ts">
 
 const props = defineProps<{
-  type: "sign_in" | "sign_up"
+  isLoading?: boolean
 }>();
 
 const emit = defineEmits<{
-  (e: "switch", value: "sign_in" | "sign_up"),
-  (e: "action", login_: string, password_: string)
+  (e: "submit", login: string, password: string): void
 }>()
 
-const header = computed(() => {
-  return props.type === "sign_in" ? "Log In" : "Sign up"
+const login = ref("");
+const password = ref("");
+const errors = ref({
+  login: '',
+  password: ''
 });
+const generalError = ref('');
 
-const login: Ref<string> = ref("");
-const password: Ref<string> = ref("");
+const validateForm = (): boolean => {
+  // Clear previous errors
+  errors.value.login = '';
+  errors.value.password = '';
+  generalError.value = '';
 
+  return login.value && password.value;
+};
 
-const actionButtonClick = () => {
-  if (!login.value || !password.value) {
+const handleLogin = async () => {
+  console.log('handleLogin in AuthForm called')
+  generalError.value = '';
+
+  if (!validateForm()) {
+    generalError.value = "All fields must be filled";
+    console.log('Validation failed');
     return;
   }
 
-  emit('action', login.value, password.value);
+  console.log('Emitting submit event with:', login.value, password.value)
+  emit('submit', login.value, password.value);
+
+  const userStore = useUserStore();
+  const toast = useToast()
+
+  const login_ = async (login: string, password: string) => {
+    userStore.login(login, password)
+        .then(result => {
+          toast.add({
+            title: 'Success',
+            description: 'Logged in successfully',
+            color: 'green'
+          })
+          navigateTo('/')
+        })
+        .catch(error => {
+          generalError.value = error.statusCode === 404 ? "Invalid credentials" : "Network error. Try again"
+          toast.add({
+            title: 'Login Failed',
+            description: generalError.value,
+            color: 'red'
+          })
+        })
+  }
+
+  await login_(login.value, password.value);
+
 }
+
+// Clear general error when user starts typing
+watch([login, password], () => {
+  generalError.value = '';
+});
+
+// Show error passed from parent
+defineExpose({
+  setError: (error: string) => {
+    generalError.value = error;
+  }
+});
 
 </script>
 
 <style scoped>
 
-
-.auth__page-container {
-  @apply w-full h-full flex items-center justify-center
-}
 
 .auth__login-form {
   @apply w-[500px]

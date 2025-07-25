@@ -7,6 +7,7 @@ class StartWorkoutPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: _buildNavBar(context),
       body: Center(
         child: CupertinoButton.tinted(
           child: Text(
@@ -17,6 +18,20 @@ class StartWorkoutPage extends StatelessWidget {
           },
         ),
       ),
+    );
+  }
+
+  PreferredSizeWidget _buildNavBar(BuildContext context) {
+    final schema = Theme.of(context).colorScheme;
+    return CupertinoNavigationBar(
+      backgroundColor: schema.secondary,
+      middle: Text('Profile', style: TextStyle().copyWith(color: schema.onSecondary),),
+      trailing: CupertinoButton(
+          padding: EdgeInsets.zero,
+          child: const Icon(CupertinoIcons.profile_circled),
+          onPressed: () {
+            Navigator.pushNamed(context, '/auth');
+          }),
     );
   }
 }

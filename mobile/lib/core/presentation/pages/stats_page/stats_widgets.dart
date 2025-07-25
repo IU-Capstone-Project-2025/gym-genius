@@ -34,7 +34,7 @@ class _ActivityGridState extends State<ActivityGrid> {
 
       _scrollCtrl.animateTo(
         max, // top in reversed axis
-        duration: const Duration(milliseconds: 350),
+        duration: const Duration(milliseconds: 1200),
         curve: Curves.decelerate,
       );
     });
@@ -80,7 +80,7 @@ class _ActivityGridState extends State<ActivityGrid> {
                     child: GridView.builder(
                       controller: _scrollCtrl,
                       scrollDirection: Axis.horizontal,
-                      reverse: true,
+                      reverse: false,
                       shrinkWrap: true,
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 7, // columns = 7 days (Mon–Sun)
